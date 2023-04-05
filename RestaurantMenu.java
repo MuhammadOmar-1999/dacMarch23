@@ -3,55 +3,45 @@ import java.util.Scanner;
 
 public class RestaurantMenu {
 	private static Scanner sc = new Scanner(System.in);
-	private static int editMenu() {
-		System.out.println("0.Exit");
-		System.out.println("1.Create a menu");
-		System.out.println("2.Show menu");
-		System.out.println("3.Add new food item");
-		System.out.println("4.Remove a food item");
-		System.out.println("5.Modify a food item");
-		System.out.print("Enter choice: ");
+	private static int showOptions() {
+		System.out.println("1.Show current menu");
+		System.out.println("2.Add New dish");
+		System.out.println("3.Remove dish");
+		System.out.println("4.Modify dish");
+		System.out.println("5.Exit");
+		System.out.print("Enter your choice: ");
 		int choice = sc.nextInt();
 		sc.nextLine();
 		return choice;
 	}
 	
-	private static void createMenu(FoodItem[] menu) {
-		for(int i=0;i<menu.length;i++) {
-			menu[i] = new FoodItem();
-			System.out.print("Enter 1st food item name: ");
-			String food = sc.nextLine();
-			menu[i].setName(food);
-			System.out.print("Enter price for "+food+": ");
-			double price = sc.nextDouble();
-			menu[i].setPrice(price);
-			sc.nextLine();
-		}
-		
-	}
-	
-	private static void showMenu(FoodItem[] menu) {
-		int i=1;
-		for(FoodItem item: menu) {
-				if(item!=null) {
-				System.out.printf(i+"."+item.getName()+"  		Rs."+item.getPrice());
+	private static void currentMenu(FoodItem[] menu) {
+		for(FoodItem dish: menu) {
+			if(dish!=null) {
+				System.out.printf("Name: "+dish.getName());
+				System.out.printf(" | Price: "+dish.getPrice());
 				System.out.println();
 			}
-			i++;
 		}
+		
 	}
 	
-	private static void addFoodItem(FoodItem[] menu, int pos) {
-		menu[pos]= new FoodItem();
-		System.out.print("Enter name of food: ");
-		String food = sc.nextLine();
-		menu[pos].setName(food);
-		System.out.print("Enter price for "+ food+": ");
-		double price = sc.nextDouble();
-		menu[pos].setPrice(price);
+	private static boolean addNewDish(FoodItem[] menu, int pos) {
+		if(menu[pos]==null) {
+			System.out.print("Enter name of Dish: ");
+			String name = sc.nextLine();
+			System.out.print("Enter Price of Dish: ");
+			double price = sc.nextDouble();
+			sc.nextLine();
+			menu[pos]=new FoodItem(name,price);
+			return true;
+		}
+		return false;
 	}
-		
-	public static boolean removeFoodItem(FoodItem[] menu, String name) {
+
+	private static boolean removeDish(FoodItem[] menu) {
+		System.out.print("Enter name of Dish to be removed : ");
+		String name = sc.nextLine();
 		for(int i=0;i<menu.length;i++) {
 			if(menu[i]!=null) {
 				if(menu[i].getName().equals(name)) {
@@ -63,73 +53,71 @@ public class RestaurantMenu {
 		return false;
 	}
 	
-	private static boolean modifyFoodItem(FoodItem[] menu, String name2) {
-		FoodItem item =null;
-		for(int i=0; i<menu.length; i++) {
-			if(menu[i]!=null) {
-				if(menu[i].getName().equals(name2)) {
-					item = menu[i];
-					break;
-				}
-				else {
-					continue;
+	private static boolean modifyDish(FoodItem[] menu, int pos) {
+		if(menu[pos]!=null) {
+			System.out.print("1.Name\n2.Price\nChoose field to be changed: ");
+			int choice = sc.nextInt();
+			sc.nextLine();
+			if(choice==1) {
+				System.out.print("Enter new name of food item: ");
+				String name = sc.nextLine();
+				menu[pos].setName(name);
+				return true;
+			}
+			else if(choice==2){
+				System.out.print("Enter new price of food item: ");
+				double price = sc.nextDouble();
+				sc.nextLine();
+				if(menu[pos]==null) {
+					menu[pos].setPrice(price);
+					return true;
 				}
 			}
 		}
-		if(item==null) {return false;}
-		System.out.print("1.Price\n2.Name\nWhat do you want to modify?");
-		if(sc.nextInt()==1) {
-			System.out.print("Enter new price: ");
-			item.setPrice(sc.nextInt());
-		}
-		else {
-			System.out.print("Enter new name: ");
-			item.setName(sc.nextLine());
-		}
-		
-		return true;
+		return false;
 	}
-
-	public static void main(String args[]) {
-		FoodItem [] menu = new FoodItem[2];
-		int choice;
-		do {
-			choice = RestaurantMenu.editMenu();
-			switch(choice) {
+			
+		
+	public static void main(String[] args) {
+		FoodItem[] menu = new FoodItem[5];
+		int choice=RestaurantMenu.showOptions();;
+		boolean b;
+		int pos;
+		while(choice!=5){
+			switch(choice){
 			case 1:
-				RestaurantMenu.createMenu(menu);
+				RestaurantMenu.currentMenu(menu);
 				break;
 			case 2:
-				RestaurantMenu.showMenu(menu);
+				System.out.print("Enter postion: ");
+				pos = sc.nextInt();
+				sc.nextLine();
+				b = RestaurantMenu.addNewDish(menu,pos);
+				if(b) 
+					System.out.println("New dish added!");
+				else
+					System.out.println("Menu full!");
 				break;
 			case 3:
-				System.out.print("Enter position in menu: ");
-				int pos = sc.nextInt();
-				RestaurantMenu.addFoodItem(menu, pos);
+				b = RestaurantMenu.removeDish(menu);
+				if(b)
+					System.out.println("Dish removed!");
+				else
+					System.out.println("Dish not found!");
 				break;
 			case 4: 
-				System.out.print("Enter name of item to be removed: ");
-				String name1 = sc.nextLine();
-				boolean b1 = RestaurantMenu.removeFoodItem(menu,name1);
-				if(b1) 
-					System.out.println("Food item removed successfully!");
+				System.out.print("Enter position: ");
+				pos = sc.nextInt();
+				sc.nextLine();
+				b = RestaurantMenu.modifyDish(menu,pos);
+				if(b)
+					System.out.println("Dish modified");
 				else
-					System.out.println("Item not found");
-				break;
-			case 5:
-				System.out.print("Enter name of item to be modified: ");
-				String name2 = sc.nextLine();
-				boolean b2 = RestaurantMenu.modifyFoodItem(menu, name2);
-				if(b2)
-					System.out.println("Item modified successfully!");
-				else
-					System.out.println("Item not found!");
+					System.out.println("Dish not found!");
 				break;
 			}
-			
-			}while (choice!=0);
-			
+			choice = RestaurantMenu.showOptions();
 		}
-
+		System.out.println("Thanks!");
 	}
-
+}
